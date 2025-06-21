@@ -6,6 +6,18 @@ import { movies } from '../utils/data'; // Import dummy movie data
 import { MovieCard, SeatSelection } from '../components'; // Import components
 import { FilmIcon } from '@heroicons/react/24/solid';
 
+interface Article {
+  url: string;
+  title: string;
+  description?: string;
+  publishedAt?: string;
+  source: {
+    name: string;
+  };
+}
+
+
+
 /**
  * @function Home
  * @description The main page component for the movie ticket booking system.
@@ -24,7 +36,12 @@ const Home: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [newsArticles, setNewsArticles] = useState([]);
+const [newsArticles, setNewsArticles] = useState<Article[]>([]);
+
+
+const [articles, setArticles] = React.useState<Article[]>([]);
+
+
 
 
 useEffect(() => {
@@ -264,6 +281,25 @@ useEffect(() => {
       </div>
     </div>
   </section>
+
+  {/* Latest Blogs & Reviews Section */}
+<section className="mb-10">
+  <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">🎬 Latest Blogs & Reviews</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {articles.map((article, index) => (
+      <a
+        key={index}
+        href={article.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition"
+      >
+        {article.title}
+      </a>
+    ))}
+  </div>
+</section>
+
 
   {/* Blog/News Section */}
   <section id="blogs" className="bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full">
