@@ -1,0 +1,30 @@
+// tsconfig.json
+
+{
+  "compilerOptions": {
+    "target": "es5", // Target ECMAScript 5 for broader browser compatibility
+    "lib": ["dom", "dom.iterable", "esnext"], // Libraries to include in the compilation
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "strict": true, // Enable all strict type-checking options
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased file names
+    "noEmit": true, // Do not emit output (Next.js handles this)
+    "esModuleInterop": true, // Allow default imports from modules with no default export
+    "module": "esnext", // Specify module code generation
+    "moduleResolution": "node", // Resolve modules using Node.js resolution strategy
+    "resolveJsonModule": true, // Allow importing .json files
+    "isolatedModules": true, // Ensure that each file can be safely transpiled without relying on other files
+    "jsx": "preserve", // Preserve JSX for Next.js
+    "incremental": true, // Enable incremental compilation
+    "plugins": [
+      {
+        "name": "next" // Next.js TypeScript plugin
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"] // Path aliases, e.g., import from "@/components"
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
