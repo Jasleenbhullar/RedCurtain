@@ -16,6 +16,8 @@ export interface Movie {
   description: string;
   rating: number; // 1-5 scale
   releaseDate: string;
+  genre: string;
+  language: string;
 }
 
 /**

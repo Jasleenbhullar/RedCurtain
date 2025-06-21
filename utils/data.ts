@@ -16,6 +16,7 @@ export const movies: Movie[] = [
     rating: 4,
     releaseDate: null,
     genre: "Sci-Fi",
+    language: "English",
   },
   {
     id: '2',
@@ -25,6 +26,7 @@ export const movies: Movie[] = [
     rating: 5,
     releaseDate: null,
     genre: "Romantic",
+    language: "null",
   },
   {
     id: '3',
@@ -34,6 +36,7 @@ export const movies: Movie[] = [
     rating: 4,
     releaseDate: null,
     genre: "Drama",
+    language: "Hindi",
   },
   {
     id: '4',
@@ -43,6 +46,7 @@ export const movies: Movie[] = [
     rating: 3,
     releaseDate: null,
     genre: "Horror",
+    language: "null",
 
   },
   
@@ -55,6 +59,7 @@ export const movies: Movie[] = [
     rating: 4,
     releaseDate: null,
     genre: "Comedy",
+    language: "null",
   },
   {
     id: '6',
@@ -64,6 +69,7 @@ export const movies: Movie[] = [
     rating: 5,
     releaseDate: null,
     genre: "Thriller",
+    language: "Punjabi",
     
   },
 
@@ -75,6 +81,7 @@ export const movies: Movie[] = [
     rating: 4,
     releaseDate: "2025-07-15",
     genre: "Sci-Fi",
+    language: "English",
 
   },
   {
@@ -85,6 +92,7 @@ export const movies: Movie[] = [
     rating: 5,
     releaseDate: "2025-09-23",
     genre: "null",
+    language: "null",
   },
     {
     id: '9',
@@ -94,6 +102,7 @@ export const movies: Movie[] = [
     rating: 3,
     releaseDate: "2025-07-12",
     genre: "null",
+    language: "null",
   },
     {
     id: '10',
@@ -103,6 +112,7 @@ export const movies: Movie[] = [
     rating: 3,
     releaseDate: "2025-10-11",
     genre: "null",
+    language: "null",
   }
 ];
 
