@@ -31,7 +31,7 @@ export const movies: Movie[] = [
   {
     id: '3',
     title: 'Devil Wears Prada',
-    poster: 'https://www.themoviedb.org/t/p/original/1LwW0W0Zyik00OmQPTnCUjmCh1C.jpg',
+    poster: 'https://image.tmdb.org/t/p/original/u6QBDGUCOEMRekna95ip2MxplbQ.jpg',
     description: 'A heroic tale of bravery and sacrifice, following a dedicated team of first responders.',
     rating: 4,
     releaseDate: "null",
