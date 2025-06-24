@@ -86,8 +86,8 @@ export const movies: Movie[] = [
   },
   {
     id: '8',
-    title: 'Spirited Away',
-    poster: 'https://placehold.co/300x450/4B5563/F9FAFB?text=MOVIE+POSTER',
+    title: 'One Upon a Time In Hollywood',
+    poster: 'https://i.pinimg.com/originals/3c/a6/1f/3ca61fe3614055f0bc11b1689a6991b4.jpg',
     description: 'During her family\'s move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits, and where humans are changed into beasts.',
     rating: 5,
     releaseDate: "2025-09-23",
@@ -96,8 +96,8 @@ export const movies: Movie[] = [
   },
     {
     id: '9',
-    title: 'The Unexpected Turn',
-    poster: 'https://placehold.co/300x450/4B5563/F9FAFB?text=MOVIE+POSTER',
+    title: 'The Batman',
+    poster: 'https://wallpapercave.com/wp/wp10947950.jpg',
     description: 'A delightful comedy of errors that takes an unforeseen twist, leaving audiences in stitches.',
     rating: 3,
     releaseDate: "2025-07-12",
@@ -106,7 +106,7 @@ export const movies: Movie[] = [
   },
     {
     id: '10',
-    title: 'The Unexpected Turn',
+    title: 'The Old Times',
     poster: 'https://www.filmsourcing.com/wp-content/uploads/2013/03/werethemillers-poster.jpg',
     description: 'A delightful comedy of errors that takes an unforeseen twist, leaving audiences in stitches.',
     rating: 3,

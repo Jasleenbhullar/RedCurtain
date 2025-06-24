@@ -3,8 +3,9 @@
 import React, { useState , useEffect} from 'react';
 import { Movie } from '../types'; // Import the Movie type
 import { movies } from '../utils/data'; // Import dummy movie data
-import { MovieCard, SeatSelection } from '../components'; // Import components
+import { MovieCard, SeatSelection , ContactForm} from '../components'; // Import components
 import { FilmIcon } from '@heroicons/react/24/solid';
+
 
 interface Article {
   url: string;
@@ -48,7 +49,7 @@ useEffect(() => {
   const fetchNews = async () => {
     try {
       const res = await fetch(
-        'https://gnews.io/api/v4/search?q=movie&lang=en&max=3&apikey=d10e90dbb7a1308183a482f4ff46cd65'
+        'https://gnews.io/api/v4/search?q=movie&lang=en&max=6&apikey=d10e90dbb7a1308183a482f4ff46cd65'
       );
       const data = await res.json();
       setNewsArticles(data.articles || []);
@@ -59,6 +60,19 @@ useEffect(() => {
 
   fetchNews();
 }, []);
+
+
+  const filteredMovies = movies.filter((movie) => {
+    const genreMatch = selectedGenre ? movie.genre === selectedGenre : true;
+    const languageMatch = selectedLanguage ? movie.language === selectedLanguage : true;
+    const searchMatch = searchQuery
+      ? movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    return genreMatch && languageMatch && searchMatch;
+  });
+
+
+  
 
 
   /**
@@ -117,10 +131,13 @@ useEffect(() => {
   {/* Search Input (unchanged) */}
   <div className="relative w-full sm:w-auto mt-4 sm:mt-0">
     <input
-      type="text"
-      placeholder="Search or enter movie name"
-      className="w-full sm:w-64 p-2 pl-10 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-    />
+  type="text"
+  placeholder="Search or enter movie name"
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  className="w-full sm:w-64 p-2 pl-10 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+/>
+
     <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
@@ -172,16 +189,16 @@ useEffect(() => {
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6">Now Showing</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Render the first 6 movies in the main grid */}
-{movies
-  .filter((movie) => {
-    const genreMatch = selectedGenre ? movie.genre === selectedGenre : true;
-    const languageMatch = selectedLanguage ? movie.language === selectedLanguage : true;
-    return genreMatch && languageMatch;
-  })
-  .slice(0, 6) // Optional limit
-  .map((movie) => (
+{filteredMovies.length === 0 ? (
+  <p className="text-gray-400 text-sm sm:text-base col-span-full">
+    ❌ No matching movies found.
+  </p>
+) : (
+  filteredMovies.slice(0, 6).map((movie) => (
     <MovieCard key={movie.id} movie={movie} onBookTickets={handleBookTickets} />
-  ))}
+  ))
+)}
+
 
 
               </div>
@@ -232,9 +249,9 @@ useEffect(() => {
            
 
            {/* Right Column - Sidebar */}
-<div className="space-y-8">
+<div className="space-y-4">
   {/* Filter Section */}
-  <section className="bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full">
+  <section className="bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full self-start mt-10">
     <h2 className="text-xl font-semibold mb-4">🎯 Filter by Genre & Language</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -284,7 +301,7 @@ useEffect(() => {
 
   {/* Latest Blogs & Reviews Section */}
 <section className="mb-10">
-  <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">🎬 Latest Blogs & Reviews</h2>
+
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {articles.map((article, index) => (
       <a
@@ -341,74 +358,10 @@ useEffect(() => {
 <section id="contact" className="w-full bg-gray-900 text-gray-100 mt-24 py-10 px-4 sm:px-12">
   <div className="max-w-screen-xl mx-auto">
     <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center sm:text-left">📬 Get in Touch</h2>
-
-    <form className="grid  gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {/* Name */}
-      <div className="flex flex-col">
-        <label htmlFor="name" className="mb-1 text-sm">Name</label>
-        <input
-          type="text"
-          id="name"
-          placeholder="Your Name"
-          className="px-4 py-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        />
-      </div>
-
-      {/* Phone */}
-      <div className="flex flex-col">
-        <label htmlFor="phone" className="mb-1 text-sm">Phone</label>
-        <input
-          type="tel"
-          id="phone"
-          placeholder="9876543210"
-          className="px-4 py-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        />
-      </div>
-
-      {/* Email */}
-      <div className="flex flex-col">
-        <label htmlFor="email" className="mb-1 text-sm">Email</label>
-        <input
-          type="email"
-          id="email"
-          placeholder="you@example.com"
-          className="px-4 py-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        />
-      </div>
-
-         {/* ticket no.  */}
-      <div className="flex flex-col">
-        <label htmlFor="ticket" className="mb-1 text-sm">Ticket-No.</label>
-        <input
-          type="ticket"
-          id="ticket"
-          placeholder="TX123050"
-          className="px-4 py-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        />
-      </div>
-      {/* Query Message - spans full width */}
-      <div className="sm:col-span-2 lg:col-span-4">
-        <label htmlFor="message" className="mb-1 text-sm block">Your Query</label>
-        <textarea
-          id="message"
-          rows={4}
-          placeholder="Enter your message or query..."
-          className="w-full px-4 py-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-        ></textarea>
-      </div>
-
-          {/* Submit Button */}
-      <div className="flex items-end">
-        <button
-          type="submit"
-          className="w-full bg-blue-800 hover:bg-blue-500 transition duration-300 text-white font-medium px-6 py-2 rounded-md text-sm"
-        >
-          Send
-        </button>
-      </div>
-    </form>
+    <ContactForm />
   </div>
 </section>
+
 
 
 
