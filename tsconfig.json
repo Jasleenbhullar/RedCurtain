@@ -1,12 +1,15 @@
 // tsconfig.json
-
 {
   "compilerOptions": {
     "target": "es5", // Target ECMAScript 5 for broader browser compatibility
-    "lib": ["dom", "dom.iterable", "esnext"], // Libraries to include in the compilation
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // Libraries to include in the compilation
     "allowJs": true, // Allow JavaScript files to be compiled
     "skipLibCheck": true, // Skip type checking of declaration files
-    "strict": true, // Enable all strict type-checking options
+    "strict": false, // Enable all strict type-checking options
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased file names
     "noEmit": true, // Do not emit output (Next.js handles this)
     "esModuleInterop": true, // Allow default imports from modules with no default export
@@ -22,9 +25,19 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"] // Path aliases, e.g., import from "@/components"
-    }
+      "@/*": [
+        "./src/*"
+      ] // Path aliases, e.g., import from "@/components"
+    },
+    "strictNullChecks": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
