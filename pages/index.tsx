@@ -5,6 +5,13 @@ import { Movie } from '../types'; // Import the Movie type
 import { movies } from '../utils/data'; // Import dummy movie data
 import { MovieCard, SeatSelection , ContactForm} from '../components'; // Import components
 import { FilmIcon } from '@heroicons/react/24/solid';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from 'next/router';
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import type { User } from "firebase/auth";
 
 
 interface Article {
@@ -17,49 +24,86 @@ interface Article {
   };
 }
 
-
-
-/**
- * @function Home
- * @description The main page component for the movie ticket booking system.
- * Manages the view state (movie listing or seat selection) and
- * renders the appropriate components.
- */
 const Home: React.FC = () => {
-  // State to manage the current view: 'movies' (default) or 'seatSelection'
   const [currentView, setCurrentView] = useState<'movies' | 'seatSelection'>('movies');
-  // State to hold the movie object that the user selected for booking
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-
-    const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-const [newsArticles, setNewsArticles] = useState<Article[]>([]);
+  const [newsArticles, setNewsArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = React.useState<Article[]>([]);
+ const [user, setUser] = useState<User | null>(null);
 
+  const router = useRouter();
+  const provider = new GoogleAuthProvider();
 
-const [articles, setArticles] = React.useState<Article[]>([]);
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch(
+          'https://gnews.io/api/v4/search?q=movie&lang=en&max=6&apikey=d10e90dbb7a1308183a482f4ff46cd65'
+        );
+        const data = await res.json();
+        setNewsArticles(data.articles || []);
+      } catch (err) {
+        console.error('Failed to fetch news:', err);
+      }
+    };
+    fetchNews();
+  }, []);
 
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Logged in user:", user.displayName);
+      setUser(user);
+       // Set user state
+    } else {
+      console.log("User logged out");
+      setUser(null);
+    }
+  });
 
-
+  return () => unsubscribe(); // Cleanup
+}, []);
 
 useEffect(() => {
-  const fetchNews = async () => {
-    try {
-      const res = await fetch(
-        'https://gnews.io/api/v4/search?q=movie&lang=en&max=6&apikey=d10e90dbb7a1308183a482f4ff46cd65'
-      );
-      const data = await res.json();
-      setNewsArticles(data.articles || []);
-    } catch (err) {
-      console.error('Failed to fetch news:', err);
-    }
-  };
-
-  fetchNews();
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('loggedin')) {
+    url.searchParams.delete('loggedin');
+    window.history.replaceState({}, document.title, url.pathname); // Remove param
+    window.location.reload(); // ✅ Refresh UI to reflect login
+  }
 }, []);
+
+
+const handleLogout = async () => {
+  const confirmed = window.confirm("Are you sure you want to log out?");
+  if (!confirmed) return;
+
+  try {
+    await signOut(auth);
+    setUser(null);
+    alert("Logged out successfully.");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+
+
+const handleGoogleLogin = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+    alert("Logged in successfully!");
+     window.location.reload();// Redirect to homepage after login
+  } catch (err) {
+    console.error(err);
+    alert("Login failed.");
+  }
+};
+
+
 
 
   const filteredMovies = movies.filter((movie) => {
@@ -71,112 +115,149 @@ useEffect(() => {
     return genreMatch && languageMatch && searchMatch;
   });
 
-
-  
-
-
-  /**
-   * @function handleBookTickets
-   * @description Callback function passed to MovieCard.
-   * Sets the selected movie and switches the view to seat selection.
-   * @param {Movie} movie - The movie object for which tickets are to be booked.
-   */
   const handleBookTickets = (movie: Movie) => {
+    const isLoggedIn = !!user;
+    if (!isLoggedIn) {
+      alert('Please log in to book tickets.');
+      return;
+    }
     setSelectedMovie(movie);
     setCurrentView('seatSelection');
   };
 
-  /**
-   * @function handleBackToMovies
-   * @description Callback function passed to SeatSelection.
-   * Clears the selected movie and switches the view back to the movie listing.
-   */
-  const handleBackToMovies = () => {
-    setSelectedMovie(null);
-    setCurrentView('movies');
-  };
+ const handleBackToMovies = () => {
+  setCurrentView('movies');
+  setSelectedMovie(null);
+};
 
   return (
     <div className="min-h-screen bg-black font-sans text-gray-100 p-4 sm:p-6 lg:p-8">
-      {/* Header Section */}
       <header className="flex flex-col sm:flex-row justify-between items-center mb-8 p-4 bg-gray-800 rounded-lg shadow-md">
-  <div className="flex justify-between w-full sm:w-auto items-center">
-   <h1 className="flex items-center text-2xl sm:text-3xl font-bold text-white">
-  <FilmIcon className="w-8 h-8 mr-2 text-red-600" />
-  RedCurtain
-</h1>
+        <div className="flex justify-between w-full sm:w-auto items-center">
+          <h1 className="flex items-center text-2xl sm:text-3xl font-bold text-white">
+            <FilmIcon className="w-8 h-8 mr-2 text-red-600" />
+            RedCurtain
+          </h1>
+<div className="flex items-center space-x-4 sm:hidden">
+  {user ? (
+    <img
+      src={user.photoURL || "https://placehold.co/32x32?text=👤"}
+      alt="User"
+      className="w-8 h-8 rounded-full"
+    />
+  ) : (
+    <a href="/login" title="My Account">
+      <UserCircleIcon className="h-7 w-7 text-gray-300 hover:text-white transition" />
+    </a>
+  )}
+  <button
+    onClick={() => setIsMenuOpen(!isMenuOpen)}
+    className="text-gray-300 hover:text-white focus:outline-none"
+  >
+    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+</div>
+
+        </div>
+
+        <nav className="hidden sm:flex space-x-8 mt-4 sm:mt-0">
+          <a href="#home" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Home</a>
+          <a href="#blogs" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Blog</a>
+          <a href="#contact" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Contact</a>
+        </nav>
+
+        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <div className="relative w-full sm:w-auto mt-4 sm:mt-0">
+            <input
+              type="text"
+              placeholder="Search or enter movie name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-64 p-2 pl-10 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            />
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+{user ? (
+  <button
+    onClick={handleLogout}
+    title="Click to logout"
+    className="hidden sm:flex items-center space-x-2 focus:outline-none"
+  >
+    <img
+      src={user.photoURL || "https://placehold.co/32x32?text=👤"}
+      alt="User"
+      className="w-8 h-8 rounded-full"
+    />
+    <span className="text-sm text-gray-300">{user.displayName}</span>
+  </button>
+) : (
+  <a href="/login" title="My Account" className="hidden sm:block">
+    <UserCircleIcon className="h-8 w-8 text-gray-300 hover:text-white transition" />
+  </a>
+)}
 
 
-    {/* Hamburger Icon */}
-    <div className="sm:hidden">
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="text-gray-300 hover:text-white focus:outline-none"
-      >
-        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+
+        </div>
+      </header>
+
+      {isMenuOpen && (
+        <div className="sm:hidden bg-gray-800 rounded-md shadow-md px-4 py-3 space-y-2 mb-4 animate-fade-in-down">
+          <a href="#home" className="block text-gray-300 hover:text-white text-sm" onClick={() => setIsMenuOpen(false)}>Home</a>
+          <a href="#blogs" className="block text-gray-300 hover:text-white text-sm" onClick={() => setIsMenuOpen(false)}>Blog</a>
+          <a href="#contact" className="block text-gray-300 hover:text-white text-sm" onClick={() => setIsMenuOpen(false)}>Contact</a>
+        </div>
+      )}
+      {/* Mobile-only Filter Section */}
+<section className="block sm:hidden bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full mb-6">
+  <h2 className="text-xl font-semibold mb-4">🎯 Filter by Genre & Language</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    {/* Genres */}
+    <div>
+      <h3 className="font-medium mb-2">Genres</h3>
+      <div className="flex flex-wrap gap-2">
+        {['Sci-Fi', 'Romantic', 'Comedy', 'Thriller', 'Drama', 'Horror'].map((genre) => (
+          <button
+            key={genre}
+            onClick={() => setSelectedGenre(genre === selectedGenre ? null : genre)}
+            className={`px-4 py-1 rounded-full text-sm ${
+              genre === selectedGenre
+                ? 'bg-blue-500 text-white'
+                : 'bg-blue-800 hover:bg-blue-500 text-gray-300'
+            }`}
+          >
+            {genre}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Languages */}
+    <div>
+      <h3 className="font-medium mb-2">Languages</h3>
+      <div className="flex flex-wrap gap-2">
+        {['English', 'Hindi', 'Punjabi', 'Tamil', 'Telugu'].map((lang) => (
+          <button
+            key={lang}
+            onClick={() => setSelectedLanguage(lang === selectedLanguage ? null : lang)}
+            className={`px-4 py-1 rounded-full text-sm ${
+              lang === selectedLanguage
+                ? 'bg-blue-500 text-white'
+                : 'bg-blue-800 hover:bg-blue-500 text-gray-300'
+            }`}
+          >
+            {lang}
+          </button>
+        ))}
+      </div>
     </div>
   </div>
-
-  {/* Desktop Nav */}
-  <nav className="hidden sm:flex space-x-6 mt-4 sm:mt-0">
-    <a href="#home" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Home</a>
-    <a href="#movies" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Movies</a>
-    <a href="#blogs" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Blog</a>
-    <a href="#contact" className="text-gray-300 hover:text-white transition duration-200 text-sm sm:text-base">Contact</a>
-  </nav>
-
-  {/* Search Input (unchanged) */}
-  <div className="relative w-full sm:w-auto mt-4 sm:mt-0">
-    <input
-  type="text"
-  placeholder="Search or enter movie name"
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  className="w-full sm:w-64 p-2 pl-10 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-/>
-
-    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-    </svg>
-  </div>
-</header>
-
-{/* Mobile Nav Dropdown */}
-{isMenuOpen && (
-  <div className="sm:hidden bg-gray-800 rounded-md shadow-md px-4 py-3 space-y-2 mb-4 animate-fade-in-down">
-    <a
-      href="#home"
-      className="block text-gray-300 hover:text-white text-sm"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Home
-    </a>
-    <a
-      href="#movies"
-      className="block text-gray-300 hover:text-white text-sm"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Movies
-    </a>
-    <a
-      href="#blogs"
-      className="block text-gray-300 hover:text-white text-sm"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Blog
-    </a>
-    <a
-      href="#contact"
-      className="block text-gray-300 hover:text-white text-sm"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Contact
-    </a>
-  </div>
-)}
+</section>
 
 
 
@@ -185,8 +266,8 @@ useEffect(() => {
         {currentView === 'movies' ? (
           <>
             {/* Left Column - Movie Listings */}
-            <section id="movies" className="md:col-span-2">
-              <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6">Now Showing</h2>
+            <section id="movies" className="md:col-span-2 ">
+              <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6">🎬 Now Showing</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Render the first 6 movies in the main grid */}
 {filteredMovies.length === 0 ? (
@@ -206,7 +287,7 @@ useEffect(() => {
               {/* Featured Movie Section */}
               <div className="mt-12">
   <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">🎬 Releasing Soon</h2>
-              <div className="mt-8 bg-gray-800 rounded-lg shadow-lg flex flex-col md:flex-row items-center p-4 sm:p-6">
+              <div className="mt-9 bg-gray-800 rounded-lg shadow-lg flex flex-col md:flex-row items-center py-4 px-6 sm:p-6">
                 <img
                   src={movies[6].poster} // Assuming the 5th movie is the featured one
                   alt={movies[6].title}
@@ -249,9 +330,9 @@ useEffect(() => {
            
 
            {/* Right Column - Sidebar */}
-<div className="space-y-4">
+<div className="flex flex-col space-y-4">
   {/* Filter Section */}
-  <section className="bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full self-start mt-10">
+  <section className="hidden sm:block bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full self-start mt-14">
     <h2 className="text-xl font-semibold mb-4">🎯 Filter by Genre & Language</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -300,7 +381,7 @@ useEffect(() => {
   </section>
 
   {/* Latest Blogs & Reviews Section */}
-<section className="mb-10">
+<section className="mb-12">
 
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {articles.map((article, index) => (
@@ -319,7 +400,7 @@ useEffect(() => {
 
 
   {/* Blog/News Section */}
-  <section id="blogs" className="bg-gray-800 py-6 px-4 rounded-xl shadow-md w-full">
+  <section id="blogs" className="bg-gray-800 py-3 px-4 rounded-xl shadow-md w-full">
     <h2 className="text-xl font-semibold mb-4">📰 Latest Blogs & Movie News</h2>
 
     <div className="space-y-4">
@@ -350,7 +431,7 @@ useEffect(() => {
           </>
         ) : (
           // Render SeatSelection component if currentView is 'seatSelection' and a movie is selected
-          selectedMovie && <SeatSelection movie={selectedMovie} onBack={handleBackToMovies} />
+          selectedMovie && <SeatSelection movie={selectedMovie} onBack={handleBackToMovies} isLoggedIn={false}  />
         )}
       </main>
 

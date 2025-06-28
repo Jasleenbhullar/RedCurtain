@@ -13,6 +13,7 @@ import { showtimes, generateSeats } from '../utils/data'; // Import data and hel
 interface SeatSelectionProps {
   movie: Movie;
   onBack: () => void;
+   isLoggedIn: boolean;
 }
 
 /**
@@ -22,7 +23,7 @@ interface SeatSelectionProps {
  * and simulates a booking process.
  * @param {SeatSelectionProps} { movie, onBack } - Props for the component.
  */
-const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack }) => {
+const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn }) => {
   // State to store all available seats in the cinema hall
   const [availableSeats, setAvailableSeats] = useState<Seat[]>([]);
   // State to store seats currently selected by the user
@@ -73,6 +74,12 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack }) => {
    */
   const handleBookSelectedTickets = () => {
     // Validate that a showtime is selected
+     if (!isLoggedIn) {
+    setBookingMessage('🚫 Please log in to confirm your booking.');
+    setTimeout(() => setBookingMessage(null), 3000);
+    return;
+  }
+
     if (!selectedShowtime) {
       setBookingMessage('Please select a showtime.');
       setTimeout(() => setBookingMessage(null), 3000);
