@@ -140,16 +140,23 @@ const handleGoogleLogin = async () => {
           </h1>
 <div className="flex items-center space-x-4 sm:hidden">
   {user ? (
-    <img
-      src={user.photoURL || "https://placehold.co/32x32?text=👤"}
-      alt="User"
-      className="w-8 h-8 rounded-full"
-    />
+    <button
+      onClick={handleLogout}
+      title="Tap to logout"
+      className="focus:outline-none"
+    >
+      <img
+        src={user.photoURL || "https://placehold.co/32x32?text=👤"}
+        alt="User"
+        className="w-8 h-8 rounded-full"
+      />
+    </button>
   ) : (
     <a href="/login" title="My Account">
       <UserCircleIcon className="h-7 w-7 text-gray-300 hover:text-white transition" />
     </a>
   )}
+
   <button
     onClick={() => setIsMenuOpen(!isMenuOpen)}
     className="text-gray-300 hover:text-white focus:outline-none"
@@ -431,7 +438,14 @@ const handleGoogleLogin = async () => {
           </>
         ) : (
           // Render SeatSelection component if currentView is 'seatSelection' and a movie is selected
-          selectedMovie && <SeatSelection movie={selectedMovie} onBack={handleBackToMovies} isLoggedIn={false}  />
+         selectedMovie && (
+  <SeatSelection
+    movie={selectedMovie}
+    onBack={handleBackToMovies}
+    isLoggedIn={!!user} // ✅ Pass actual login status
+  />
+)
+
         )}
       </main>
 

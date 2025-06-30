@@ -32,6 +32,7 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
   const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(null);
   // State to display booking messages (e.g., success, error)
   const [bookingMessage, setBookingMessage] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
   // Initialize seats when the component mounts
   useEffect(() => {
@@ -73,40 +74,43 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
    * Displays a confirmation message and updates seat availability.
    */
   const handleBookSelectedTickets = () => {
-    // Validate that a showtime is selected
-     if (!isLoggedIn) {
+  if (!isLoggedIn) {
     setBookingMessage('🚫 Please log in to confirm your booking.');
     setTimeout(() => setBookingMessage(null), 3000);
     return;
   }
 
-    if (!selectedShowtime) {
-      setBookingMessage('Please select a showtime.');
-      setTimeout(() => setBookingMessage(null), 3000);
-      return;
-    }
-    // Validate that at least one seat is selected
-    if (selectedSeats.length === 0) {
-      setBookingMessage('Please select at least one seat.');
-      setTimeout(() => setBookingMessage(null), 3000);
-      return;
-    }
+  if (!selectedShowtime) {
+    setBookingMessage('Please select a showtime.');
+    setTimeout(() => setBookingMessage(null), 3000);
+    return;
+  }
 
-    // Calculate total cost
-    const totalCost = selectedSeats.length * selectedShowtime.price;
-    // Display success message
-    setBookingMessage(
-      `Successfully booked ${selectedSeats.length} ticket(s) for ${movie.title} at ${selectedShowtime.time}. Total: $${totalCost.toFixed(2)}. Enjoy!`
-    );
+  if (!selectedDate) {
+    setBookingMessage('📅 Please select a date.');
+    setTimeout(() => setBookingMessage(null), 3000);
+    return;
+  }
 
-    // Update the availableSeats to mark the selected seats as booked
-    setAvailableSeats((prevSeats) =>
-      prevSeats.map((seat) =>
-        selectedSeats.some((s) => s.id === seat.id) ? { ...seat, isBooked: true } : seat
-      )
-    );
-    setSelectedSeats([]); // Clear selected seats after booking
-  };
+  if (selectedSeats.length === 0) {
+    setBookingMessage('Please select at least one seat.');
+    setTimeout(() => setBookingMessage(null), 3000);
+    return;
+  }
+
+  const totalCost = selectedSeats.length * selectedShowtime.price;
+  setBookingMessage(
+    `✅ Successfully booked ${selectedSeats.length} ticket(s) for ${movie.title} on ${selectedDate} at ${selectedShowtime.time}. Total: $${totalCost.toFixed(2)}. Enjoy!`
+  );
+
+  setAvailableSeats((prevSeats) =>
+    prevSeats.map((seat) =>
+      selectedSeats.some((s) => s.id === seat.id) ? { ...seat, isBooked: true } : seat
+    )
+  );
+  setSelectedSeats([]);
+};
+
 
   return (
     <div className="md:col-span-3 bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 w-full mx-auto">
@@ -145,6 +149,19 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
           </button>
         ))}
       </div>
+
+      {/* Date Selection Section */}
+<div className="mt-6">
+  <h3 className="text-lg sm:text-xl font-semibold text-white mb-3">📅 Select Your Date:</h3>
+  <input
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    className="bg-blue-800 hover:bg-blue-500 text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    min={new Date().toISOString().split('T')[0]}
+  />
+</div>
+
     </div>
   </div>
 
