@@ -1,4 +1,4 @@
-// src/components/SeatSelection.tsx
+
 
 import React, { useState, useEffect } from 'react';
 import { Movie, Seat, Showtime } from '../types'; // Import types
@@ -34,16 +34,15 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
   const [bookingMessage, setBookingMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
 
-  // Initialize seats when the component mounts
+ 
   useEffect(() => {
     setAvailableSeats(generateSeats());
   }, []);
 
-  // Group seats by row for easier rendering in the UI
   const seatsByRow: { [key: string]: Seat[] } = availableSeats.reduce((acc, seat) => {
     (acc[seat.row] = acc[seat.row] || []).push(seat);
     return acc;
-  }, {} as { [key: string]: Seat[] }); // Asserting initial type for accumulator
+  }, {} as { [key: string]: Seat[] }); 
 
   /**
    * @function handleSeatClick
@@ -51,19 +50,18 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
    * @param {Seat} seat - The seat object that was clicked.
    */
   const handleSeatClick = (seat: Seat) => {
-    // If the seat is already booked, show a message and prevent selection
+
     if (seat.isBooked) {
       setBookingMessage('This seat is already booked!');
-      setTimeout(() => setBookingMessage(null), 3000); // Clear message after 3 seconds
+      setTimeout(() => setBookingMessage(null), 3000); 
       return;
     }
 
-    // Check if the seat is already in the selectedSeats array
     if (selectedSeats.find((s) => s.id === seat.id)) {
-      // If already selected, deselect it
+     
       setSelectedSeats(selectedSeats.filter((s) => s.id !== seat.id));
     } else {
-      // If not selected, add it to the selectedSeats
+
       setSelectedSeats([...selectedSeats, seat]);
     }
   };
@@ -202,13 +200,13 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
                   key={seat.id}
                   className={`w-6 h-6 sm:w-8 sm:h-8 rounded-md flex items-center justify-center text-xs sm:text-sm font-semibold transition duration-200
                     ${seat.isBooked
-                      ? 'bg-red-700 text-white cursor-not-allowed opacity-70' // Style for booked seats
+                      ? 'bg-red-700 text-white cursor-not-allowed opacity-70' 
                       : selectedSeats.find((s) => s.id === seat.id)
-                        ? 'bg-green-500 text-white border-2 border-green-700' // Style for selected seats
-                        : 'bg-gray-600 text-gray-200 hover:bg-gray-500' // Style for available seats
+                        ? 'bg-green-500 text-white border-2 border-green-700' 
+                        : 'bg-gray-600 text-gray-200 hover:bg-gray-500' 
                     }`}
                   onClick={() => handleSeatClick(seat)}
-                  disabled={seat.isBooked} // Disable button for booked seats
+                  disabled={seat.isBooked} 
                 >
                   {seat.number}
                 </button>
@@ -234,12 +232,12 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({ movie, onBack,isLoggedIn 
         </div>
         <button
           onClick={handleBookSelectedTickets}
-          // Disable button if no seats or no showtime is selected
+
           disabled={selectedSeats.length === 0 || !selectedShowtime}
           className={`py-2 px-4 sm:py-3 sm:px-6 rounded-md font-bold transition duration-300 text-sm sm:text-base
             ${selectedSeats.length === 0 || !selectedShowtime
-              ? 'bg-blue-800 text-gray-300 cursor-not-allowed' // Style for disabled button
-              : 'bg-green-600 hover:bg-green-700 text-white' // Style for enabled button
+              ? 'bg-blue-800 text-gray-300 cursor-not-allowed' 
+              : 'bg-green-600 hover:bg-green-700 text-white' 
             }`}
         >
           Confirm Booking

@@ -1,4 +1,4 @@
-// src/components/MovieCard.tsx
+
 
 import React from 'react';
 import { Movie } from '../types'; // Import the Movie interface
@@ -28,7 +28,6 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onBookTickets }) => {
         src={movie.poster}
         alt={movie.title}
         className="w-full h-72 object-cover"
-        // Fallback for broken image links
         onError={(e) => { e.currentTarget.src = 'https://placehold.co/300x450/4B5563/F9FAFB?text=NO+IMAGE'; }}
       />
       <div className="p-4">

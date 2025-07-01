@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
-  secure: true, // true for 465, false for 587
+  secure: true, 
   auth: {
     user: process.env.EMAIL_FROM,
     pass: process.env.PASS,
@@ -20,10 +20,10 @@ const transporter = nodemailer.createTransport({
 
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM,       // your verified email
-      to: process.env.EMAIL_FROM,         // your email to receive contact form messages
+      from: process.env.EMAIL_FROM,       
+      to: process.env.EMAIL_FROM,         
       subject: 'New Contact Us Message',
-      replyTo: email,                     // user's email for reply
+      replyTo: email,                     
       html: `
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
